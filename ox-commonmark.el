@@ -43,6 +43,13 @@
   :group 'org-export
   :version "25.2")
 
+(defcustom org-commonmark-bullet-list-marker ?-
+  "The marker for bullet list items.
+
+May be either a hyphen, plus sign, or an asterisk, per the specification."
+  :group 'org-export-commonmark
+  :type 'character)
+
 (defcustom org-commonmark-emphasis-indicator ?_
   "The indicator for emphasis runs.
 
@@ -56,6 +63,13 @@ This type of element correspond to an italic Org element."
   "The delimeter for fenced code blocks.
 
 May be either a backtick or a tilde, per the specification."
+  :group 'org-export-commonmark
+  :type 'character)
+
+(defcustom org-commonmark-ordered-list-marker ?.
+  "The marker for ordered list items.
+
+May be either a period or a right parenthesis, per the specification."
   :group 'org-export-commonmark
   :type 'character)
 
@@ -135,6 +149,25 @@ CONTENTS is the text within italic markup."
   (let* ((delimeter (make-string 1 org-commonmark-emphasis-indicator)))
     (format "%s%s%s" delimeter contents delimeter)))
 
+(defun org-commonmark--item (item contents info)
+  "Transcode ITEM element into CommonMark list item format.
+CONTENTS is the item contents. INFO is a property list used as
+a communication channel."
+  (let* ((type (org-element-property :type (org-export-get-parent item)))
+         (struct (org-element-property :structure item))
+         (marker (if (not (eq type 'ordered)) (make-string 1 org-commonmark-bullet-list-marker)
+                   (concat (number-to-string
+                            (car (last (org-list-get-item-number
+                                        (org-element-property :begin item)
+                                        struct
+                                        (org-list-prevs-alist struct)
+                                        (org-list-parents-alist struct)))))
+                           (make-string 1 org-commonmark-ordered-list-marker)))))
+    (concat marker
+            (make-string (- 4 (length marker)) ? )
+            (and contents
+                 (org-trim (replace-regexp-in-string "^" "    " contents))))))
+
 (defun org-commonmark--src-block (src-block _contents info)
   "Transcode a SRC-BLOCK element into a CommonMark fenced code block.
 INFO is a property list holding contextual information."
@@ -155,6 +188,7 @@ INFO is a property list holding contextual information."
                      (fixed-width . org-commonmark--fixed-width)
                      (horizontal-rule . org-commonmark--horizontal-rule)
                      (italic . org-commonmark--italic)
+                     (item . org-commonmark--item)
                      (src-block . org-commonmark--src-block)))
 
 (provide 'ox-commonmark)

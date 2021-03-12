@@ -61,6 +61,68 @@ across multiple lines.
                             (ox-commonmark-tests--render-content
                              "/emphasis/")))))
 
+(ert-deftest item-test ()
+  (should (string-match-p (regexp-quote "
+-   First
+-   Second
+-   Third")
+          (ox-commonmark-tests--render-content
+           "
+- First
+- Second
+- Third")))
+  (should (string-match-p (regexp-quote "
++   First
++   Second
++   Third")
+          (let ((org-commonmark-bullet-list-marker ?+))
+            (ox-commonmark-tests--render-content
+             "
+- First
+- Second
+- Third"))))
+  (should (string-match-p (regexp-quote "
+*   First
+*   Second
+*   Third")
+          (let ((org-commonmark-bullet-list-marker ?*))
+            (ox-commonmark-tests--render-content
+             "
+- First
+- Second
+- Third"))))
+  (should (string-match-p (regexp-quote "
+1.  First
+2.  Second
+3.  Third")
+                          (ox-commonmark-tests--render-content
+                           "
+1. First
+2. Second
+3. Third")))
+  (should (string-match-p (regexp-quote "
+1)  First
+2)  Second
+3)  Third")
+          (let ((org-commonmark-ordered-list-marker ?\)))
+            (ox-commonmark-tests--render-content
+             "
+1. First
+2. Second
+3. Third"))))
+  (should (string-match-p (regexp-quote "
+-   An item
+    -   Nested item
+    -   Second nested
+-   Unnested item")
+          (let ((ox-commonmark-bullet-list-marker ?+))
+            (ox-commonmark-tests--render-content
+             "
+- An item
+  - Nested item
+  - Second nested
+- Unnested item")))))
+
 (ert-deftest src-block-test ()
   (should (string-match-p (regexp-quote "```ruby
 def foo
