@@ -178,11 +178,11 @@ INFO is a property list holding contextual information."
 
 (org-export-define-derived-backend 'commonmark 'md
   :filters-alist '((:filter-parse-tree . org-md-separate-elements))
-  :menu-entry
-  '(?C "Export to CommonMark"
-       ((?C "To temporary buffer"
-            (lambda (async subtree visible-only _body-only)
-              (org-commonmark-export-as-commonmark async subtree visible-only)))))
+  ;; :menu-entry
+  ;; '(?C "Export to CommonMark"
+  ;;      ((?C "To temporary buffer"
+  ;;           (lambda (async subtree visible-only _body-only)
+  ;;             (org-commonmark-export-as-commonmark async subtree visible-only)))))
   :translate-alist '((bold . org-commonmark--bold)
                      (example-block . org-commonmark--example-block)
                      (fixed-width . org-commonmark--fixed-width)
