@@ -31,6 +31,7 @@
             (:report-file nil))
 
 (require 'ox-commonmark)
+(require 'ox-zola)
 
 (defmacro ox-zola-tests--with-temp-buffer (text body-test)
   "Create a temporary `org-mode' buffer to test.
@@ -56,6 +57,21 @@ from."
       (org-commonmark-export-as-commonmark)
       (save-excursion
         (set-buffer "*Org CommonMark Export*")
+        (buffer-string)))))
+
+(defmacro ox-zola-tests--render-content (text)
+  "Render content for Zola and return the rendered version.
+
+TEXT is the text to place in a temporary `org-mode' buffer. BODY-TEST is an
+assertion to run against the TEXT. BUFFER-NAME is the name of the buffer to read
+from."
+
+  `(ox-zola-tests--with-temp-buffer
+    ,text
+    (progn
+      (org-zola-export-as-md)
+      (save-excursion
+        (set-buffer "*Org Zola Export*")
         (buffer-string)))))
 
 ;;; test-helper.el ends here
