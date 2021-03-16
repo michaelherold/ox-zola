@@ -50,6 +50,16 @@ May be either a hyphen, plus sign, or an asterisk, per the specification."
   :group 'org-export-commonmark
   :type 'character)
 
+(defcustom org-commonmark-center-block-class "org-center"
+  "The class set on the container element for a center block."
+  :group 'org-export-commonmark
+  :type 'string)
+
+(defcustom org-commonmark-center-block-style-tag t
+  "Toggle whether center blocks will emit a style tag."
+  :group 'org-export-commonmark
+  :type 'boolean)
+
 (defcustom org-commonmark-emphasis-indicator ?_
   "The indicator for emphasis runs.
 
@@ -117,6 +127,14 @@ when `org-export-show-temporary-export-buffer' is non-nil."
 CONTENTS is the text within bold markup."
   (let* ((delimeter (make-string 2 org-commonmark-strong-emphasis-indicator)))
     (format "%s%s%s" delimeter contents delimeter)))
+
+(defun org-commonmark--center-block (center-block contents _info)
+  "Transcode CENTER-BLOCK element into a centered paragraph.
+CONTENTS is the text within the comment."
+  (let ((class org-commonmark-center-block-class))
+    (concat (when org-commonmark-center-block-style-tag
+              (format "<style>.%s { margin-left: auto; margin-right: auto; text-align: center; }</style>\n" class))
+            (format "<div class=\"%s\">\n%s</div>\n" class contents))))
 
 (defun org-commonmark--fenced-code-block (content language)
   "Wrap CONTENT in a fenced code block in a given LANGUAGE.
@@ -187,6 +205,7 @@ INFO is a property list holding contextual information."
   ;;           (lambda (async subtree visible-only _body-only)
   ;;             (org-commonmark-export-as-commonmark async subtree visible-only)))))
   :translate-alist '((bold . org-commonmark--bold)
+                     (center-block . org-commonmark--center-block)
                      (example-block . org-commonmark--example-block)
                      (fixed-width . org-commonmark--fixed-width)
                      (horizontal-rule . org-commonmark--horizontal-rule)

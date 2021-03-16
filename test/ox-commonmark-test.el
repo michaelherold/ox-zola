@@ -17,6 +17,29 @@
                             (ox-commonmark-tests--render-content
                              "*bold*")))))
 
+(ert-deftest center-block-test ()
+  (should (string-match-p (regexp-quote "
+<style>.org-center { margin-left: auto; margin-right: auto; text-align: center; }</style>
+<div class=\"org-center\">
+Lorem ipsum dolor sit amet
+</div>")
+                          (ox-commonmark-tests--render-content "
+#+begin_center
+Lorem ipsum dolor sit amet
+#+end_center")))
+  (should (not (string-match-p (regexp-quote "<style>")
+                               (let ((org-commonmark-center-block-style-tag nil))
+                                 (ox-commonmark-tests--render-content "
+#+begin_center
+This will not have a style tag.
+#+end_center")))))
+  (should (string-match-p (regexp-quote "<div class=\"my-center\">")
+                          (let ((org-commonmark-center-block-class "my-center"))
+                            (ox-commonmark-tests--render-content "
+#+begin_center
+This will have a custom div class.
+#+end_center")))))
+
 (ert-deftest example-block-test ()
   (should (string-match-p (regexp-quote "```txt
 This is plaintext output.
