@@ -152,6 +152,14 @@ across multiple lines.
                                 (org-commonmark-strong-emphasis-indicator ?_))
                             (ox-commonmark-tests--render-content "- Term :: Definition")))))
 
+(ert-deftest line-break-test ()
+  (should (string-match-p (regexp-quote "
+This is a \\
+test of a line break")
+                          (ox-commonmark-tests--render-content "
+This is a \\\\
+test of a line break"))))
+
 (ert-deftest src-block-test ()
   (should (string-match-p (regexp-quote "```ruby
 def foo

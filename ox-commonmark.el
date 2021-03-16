@@ -189,6 +189,11 @@ a communication channel."
             (and contents
                  (org-trim (replace-regexp-in-string "^" "    " contents))))))
 
+(defun org-commonmark--line-break (_line-break _contents info)
+  "Transcode a LINE-BREAK element into a CommonMark hard line break.
+INFO is a property list holding contextual information."
+  "\\\n")
+
 (defun org-commonmark--src-block (src-block _contents info)
   "Transcode a SRC-BLOCK element into a CommonMark fenced code block.
 INFO is a property list holding contextual information."
@@ -211,6 +216,7 @@ INFO is a property list holding contextual information."
                      (horizontal-rule . org-commonmark--horizontal-rule)
                      (italic . org-commonmark--italic)
                      (item . org-commonmark--item)
+                     (line-break . org-commonmark--line-break)
                      (src-block . org-commonmark--src-block)))
 
 (provide 'ox-commonmark)
