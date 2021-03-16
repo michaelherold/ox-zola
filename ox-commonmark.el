@@ -165,6 +165,9 @@ a communication channel."
                            (make-string 1 org-commonmark-ordered-list-marker)))))
     (concat marker
             (make-string (- 4 (length marker)) ? )
+            (let ((tag (org-element-property :tag item))
+                  (delimeter (make-string 2 org-commonmark-strong-emphasis-indicator)))
+              (and tag (format "%s%s:%s " delimeter (org-export-data tag info) delimeter)))
             (and contents
                  (org-trim (replace-regexp-in-string "^" "    " contents))))))
 

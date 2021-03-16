@@ -121,7 +121,13 @@ across multiple lines.
 - An item
   - Nested item
   - Second nested
-- Unnested item")))))
+- Unnested item"))))
+  (should (string-match-p (regexp-quote "-   **Term:** Definition")
+                          (ox-commonmark-tests--render-content "- Term :: Definition")))
+  (should (string-match-p (regexp-quote "+   __Term:__ Definition")
+                          (let ((org-commonmark-bullet-list-marker ?+)
+                                (org-commonmark-strong-emphasis-indicator ?_))
+                            (ox-commonmark-tests--render-content "- Term :: Definition")))))
 
 (ert-deftest src-block-test ()
   (should (string-match-p (regexp-quote "```ruby
