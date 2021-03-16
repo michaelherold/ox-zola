@@ -30,6 +30,7 @@
 
 ;;; Code:
 
+(require 'ffap)                                   ; For `ffap-url-regexp'
 (require 'ox-md)
 (require 'ox-publish)
 
@@ -154,6 +155,28 @@ INFO is a property list holding contextual information."
 (defalias 'org-commonmark--fixed-width #'org-commonmark--example-block
   "Transcode a FIXED-WIDTH element into a CommonMark fenced code block.")
 
+(defun org-commonmark--get-anchor (element info)
+  "Return an Org ELEMENT's anchor tag name.
+
+INFO is a property list used as a communication channel.
+
+When the ELEMENT has a CUSTOM_ID property, use that as the anchor name.
+Otherwise, derive the title string from the INFO and slugify it."
+  (let ((ret (org-element-property :CUSTOM_ID element)))
+    (unless ret
+      (let ((title (org-export-data-with-backend (org-element-property :title element) 'md info)))
+        (setq ret (org-commonmark--slug title))))
+    ret))
+
+
+(defun org-commonmark--headline-meta (headline info)
+  "Extract title and anchor information from a HEADLINE element.
+
+INFO is a property list used as a communication channel."
+  (let ((title (org-export-data (org-element-property :title headline) info))
+        (anchor (format "{#%s}" (org-commonmark--get-anchor headline info))))
+    (list 'title title 'anchor anchor)))
+
 (defun org-commonmark--horizontal-rule (_horizontal-rule _contents _info)
   "Transcode a HORIZONTAL-RULE element into CommonMark thematic break format.
 
@@ -193,6 +216,30 @@ a communication channel."
   "Transcode a LINE-BREAK element into a CommonMark hard line break.
 INFO is a property list holding contextual information."
   "\\\n")
+
+(defun org-commonmark--slug (str)
+  "Convert string STR to a slug and return it."
+
+  (let* ((str (downcase str))
+         (str (replace-regexp-in-string (concat "\\](" ffap-url-regexp "[^)]+)") "]" str))
+         (str (replace-regexp-in-string "&" " and " str))
+         (str (replace-regexp-in-string "\\." " dot " str))
+         (str (replace-regexp-in-string "\\+" " plus " str))
+         (str (replace-regexp-in-string "[^[:alnum:]()]" " " str))
+         (str (replace-regexp-in-string "\\(^[[:space:]]*\\|[[:space:]]*$\\)" "" str))
+         (str (replace-regexp-in-string "[[:space:]]\\{2,\\}" " " str))
+         (str (replace-regexp-in-string "\\s-*([[:space:]]*\\([^)]+?\\)[[:space:]]*)\\s-*" " -\\1- " str))
+         (str (replace-regexp-in-string "[()]" "" str))
+         (str (replace-regexp-in-string " " "-" str))
+         (str (replace-regexp-in-string "\\(^[-]*\\|[-]*$\\)" "" str)))
+    str))
+
+(when (version< emacs-version "25.0")
+  (advice-add 'org-commonmark--slug :before
+              (lambda (str)
+                (let* ((multibyte-punctuations-str "：")
+                       (str (replace-regexp-in-string (format "[%s]" multibyte-punctuations-str) " " str)))
+                  str))))
 
 (defun org-commonmark--src-block (src-block _contents info)
   "Transcode a SRC-BLOCK element into a CommonMark fenced code block.

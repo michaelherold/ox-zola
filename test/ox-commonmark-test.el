@@ -140,6 +140,17 @@ test of a line break")
 This is a \\\\
 test of a line break"))))
 
+(ert-deftest slug-test ()
+  (should (equal "somebody-set-up-us-the-bomb" (org-commonmark--slug "Somebody Set Up Us The Bomb!")))
+  (should (equal "turner-and-hooch" (org-commonmark--slug "Turner & Hooch")))
+  (should (equal "at-and-t" (org-commonmark--slug "AT&T")))
+  (should (equal "me-myself-and-irene" (org-commonmark--slug "Me, Myself, and Irene")))
+  (should (equal "alien-resurrection" (org-commonmark--slug "Alien: Resurrection")))
+  (should (equal "alien-resurrection" (org-commonmark--slug "Alien： Resurrection"))) ; Emacs < 25.0
+  (should (equal "left-side-right-side" (org-commonmark--slug " Left Side Right Side ")))
+  (should (equal "500--days-of-summer" (org-commonmark--slug "(500) Days of Summer")))
+  )
+
 (ert-deftest src-block-test ()
   (should (string-match-p (regexp-quote "```ruby
 def foo

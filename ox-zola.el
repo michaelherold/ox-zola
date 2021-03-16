@@ -25,7 +25,6 @@
 
 ;;; Code:
 
-(require 'ffap)                                   ; For `ffap-url-regexp'
 (require 'ox-commonmark)
 
 (defun org-zola-export-as-md (&optional async subtreep visible-only)
@@ -51,19 +50,6 @@ when `org-export-show-temporary-export-buffer' is non-nil."
   (org-export-to-buffer 'zola "*Org Zola Export*"
     async subtreep visible-only nil nil (lambda () (text-mode))))
 
-(defun org-zola--get-anchor (element info)
-  "Return an Org ELEMENT's anchor tag name.
-
-INFO is a property list used as a communication channel.
-
-When the ELEMENT has a CUSTOM_ID property, use that as the anchor name.
-Otherwise, derive the title string from the INFO and slugify it."
-  (let ((ret (org-element-property :CUSTOM_ID element)))
-    (unless ret
-      (let ((title (org-export-data-with-backend (org-element-property :title element) 'md info)))
-        (setq ret (org-zola--slug title))))
-    ret))
-
 (defun org-zola--headline (headline contents info)
   "Transcode HEADLINE element into Zola-flavored Markdown format.
 
@@ -73,36 +59,13 @@ communication channel."
     (let* ((level-offset (string-to-number (plist-get info :zola-level-offset)))
            (level (org-export-get-relative-level headline info))
            (level-effective (+ level-offset level))
-           (title (org-export-data (org-element-property :title headline) info))
-           (anchor (format "{#%s}" (org-zola--get-anchor headline info)))
+           (meta (org-commonmark--headline-meta headline info))
+           (title (plist-get meta 'title))
+           (anchor (plist-get meta 'anchor))
            (headline (concat title " " anchor "\n"))
            (headline-title (concat "\n" (make-string level-effective ?#) " " headline "\n"))
            (content-str (or (org-string-nw-p contents) "")))
       (format "%s%s" headline-title content-str))))
-
-(defun org-zola--slug (str)
-  "Convert string STR to a slug and return it."
-
-  (let* ((str (downcase str))
-         (str (replace-regexp-in-string (concat "\\](" ffap-url-regexp "[^)]+)") "]" str))
-         (str (replace-regexp-in-string "&" " and " str))
-         (str (replace-regexp-in-string "\\." " dot " str))
-         (str (replace-regexp-in-string "\\+" " plus " str))
-         (str (replace-regexp-in-string "[^[:alnum:]()]" " " str))
-         (str (replace-regexp-in-string "\\(^[[:space:]]*\\|[[:space:]]*$\\)" "" str))
-         (str (replace-regexp-in-string "[[:space:]]\\{2,\\}" " " str))
-         (str (replace-regexp-in-string "\\s-*([[:space:]]*\\([^)]+?\\)[[:space:]]*)\\s-*" " -\\1- " str))
-         (str (replace-regexp-in-string "[()]" "" str))
-         (str (replace-regexp-in-string " " "-" str))
-         (str (replace-regexp-in-string "\\(^[-]*\\|[-]*$\\)" "" str)))
-    str))
-
-(when (version< emacs-version "25.0")
-  (advice-add 'org-zola--slug :before
-              (lambda (str)
-                (let* ((multibyte-punctuations-str "：")
-                       (str (replace-regexp-in-string (format "[%s]" multibyte-punctuations-str) " " str)))
-                  str))))
 
 (org-export-define-derived-backend 'zola 'commonmark
   :menu-entry
