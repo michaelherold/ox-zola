@@ -18,8 +18,7 @@
                              "*bold*")))))
 
 (ert-deftest center-block-test ()
-  (should (string-match-p (regexp-quote "
-<style>.org-center { margin-left: auto; margin-right: auto; text-align: center; }</style>
+  (should (string-match-p (regexp-quote "<style>.org-center { margin-left: auto; margin-right: auto; text-align: center; }</style>
 <div class=\"org-center\">
 Lorem ipsum dolor sit amet
 </div>")
@@ -85,63 +84,45 @@ across multiple lines.
                              "/emphasis/")))))
 
 (ert-deftest item-test ()
-  (should (string-match-p (regexp-quote "
--   First
+  (should (string-match-p (regexp-quote "-   First
 -   Second
 -   Third")
-          (ox-commonmark-tests--render-content
-           "
-- First
+          (ox-commonmark-tests--render-content "- First
 - Second
 - Third")))
-  (should (string-match-p (regexp-quote "
-+   First
+  (should (string-match-p (regexp-quote "+   First
 +   Second
 +   Third")
           (let ((org-commonmark-bullet-list-marker ?+))
-            (ox-commonmark-tests--render-content
-             "
-- First
+            (ox-commonmark-tests--render-content "- First
 - Second
 - Third"))))
-  (should (string-match-p (regexp-quote "
-*   First
+  (should (string-match-p (regexp-quote "*   First
 *   Second
 *   Third")
           (let ((org-commonmark-bullet-list-marker ?*))
-            (ox-commonmark-tests--render-content
-             "
-- First
+            (ox-commonmark-tests--render-content "- First
 - Second
 - Third"))))
-  (should (string-match-p (regexp-quote "
-1.  First
+  (should (string-match-p (regexp-quote "1.  First
 2.  Second
 3.  Third")
-                          (ox-commonmark-tests--render-content
-                           "
-1. First
+                          (ox-commonmark-tests--render-content "1. First
 2. Second
 3. Third")))
-  (should (string-match-p (regexp-quote "
-1)  First
+  (should (string-match-p (regexp-quote "1)  First
 2)  Second
 3)  Third")
           (let ((org-commonmark-ordered-list-marker ?\)))
-            (ox-commonmark-tests--render-content
-             "
-1. First
+            (ox-commonmark-tests--render-content "1. First
 2. Second
 3. Third"))))
-  (should (string-match-p (regexp-quote "
--   An item
+  (should (string-match-p (regexp-quote "-   An item
     -   Nested item
     -   Second nested
 -   Unnested item")
           (let ((ox-commonmark-bullet-list-marker ?+))
-            (ox-commonmark-tests--render-content
-             "
-- An item
+            (ox-commonmark-tests--render-content "- An item
   - Nested item
   - Second nested
 - Unnested item"))))
@@ -153,8 +134,7 @@ across multiple lines.
                             (ox-commonmark-tests--render-content "- Term :: Definition")))))
 
 (ert-deftest line-break-test ()
-  (should (string-match-p (regexp-quote "
-This is a \\
+  (should (string-match-p (regexp-quote "This is a \\
 test of a line break")
                           (ox-commonmark-tests--render-content "
 This is a \\\\

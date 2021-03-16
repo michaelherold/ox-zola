@@ -8,8 +8,7 @@
 
 (ert-deftest headline-test ()
   (should (string-match-p "^## Test Headline {#test-headline}"
-                          (ox-zola-tests--render-content "
-* Test Article
+                          (ox-zola-tests--render-content "* Test Article
 :PROPERTIES:
 :EXPORT_FILE_NAME: test-article
 :END:
