@@ -100,6 +100,11 @@ May be either an asterisk, hyphen, or underscore, per the specification."
   :group 'org-export-commonmark
   :type 'character)
 
+(defcustom org-commonmark-verse-block-class "org-verse"
+  "The class set on the container element for a verse block."
+  :group 'org-export-commonmark
+  :type 'string)
+
 (defun org-commonmark-export-as-commonmark (&optional async subtreep visible-only)
   "Export current buffer to a CommonMark buffer.
 
@@ -276,6 +281,36 @@ INFO is a property list used as a communication channel."
          (bullet (make-string 1 org-commonmark-bullet-list-marker)))
     (concat indent bullet " [" title "]" "(#" anchor ")")))
 
+(defun org-commonmark--verse-block (_verse-block contents info)
+  "Transcode a VERSE-BLOCK element into a CommonMark paragraph.
+CONTENTS is the contents of the verse block.  INFO is a property list holding
+contextual information.
+
+Wraps the verse in a paragraph with the CSS class specified in
+`org-commonmark-verse-block-class', when set."
+  (let* ((ret contents)
+         (br (org-html-close-tag "br" nil info))
+         (quoted-br (regexp-quote br))
+         (ret (replace-regexp-in-string
+               (format "\\(?:%s\\)?[ \t]*\n" quoted-br)
+               (concat br "\n")
+               ret))
+         (ret (replace-regexp-in-string
+               "^[[:blank:]]+"
+               (lambda (match)
+                 (let (out) (dotimes (_ (length match) out) (setq out (concat "&nbsp;" out)))))
+               ret))
+         (ret (replace-regexp-in-string
+               (format "%s\n\\'" quoted-br)
+               "\n"
+               ret))
+         (ret (concat
+               "<p"
+               (when org-commonmark-verse-block-class
+                 (format " class=\"%s\"" org-commonmark-verse-block-class))
+               (format ">\n%s</p>" ret))))
+    ret))
+
 (org-export-define-derived-backend 'commonmark 'md
   :filters-alist '((:filter-parse-tree . org-md-separate-elements))
   ;; :menu-entry
@@ -292,7 +327,8 @@ INFO is a property list used as a communication channel."
                      (italic . org-commonmark--italic)
                      (item . org-commonmark--item)
                      (line-break . org-commonmark--line-break)
-                     (src-block . org-commonmark--src-block)))
+                     (src-block . org-commonmark--src-block)
+                     (verse-block . org-commonmark--verse-block)))
 
 (provide 'ox-commonmark)
 ;;; ox-commonmark.el ends here

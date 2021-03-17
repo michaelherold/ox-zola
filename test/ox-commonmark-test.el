@@ -194,4 +194,31 @@ end
   :END:
 "))))
 
+(ert-deftest verse-block-test ()
+  (should (string-match-p "<p class=\"org-verse\">
+Great clouds overhead<br />
+&nbsp;&nbsp;Tiny black birds rise and fall<br />
+Snow covers Emacs<br />
+<br />
+&nbsp;&nbsp;&nbsp;&#x2014;AlexSchroeder
+</p>"
+                          (ox-commonmark-tests--render-content "#+begin_verse
+Great clouds overhead
+  Tiny black birds rise and fall
+Snow covers Emacs
+
+   ---AlexSchroeder
+#+end_verse")))
+  (should (string-match-p "<p>
+This will not set the<br />
+class on the paragraph tag<br />
+since there is none set.
+</p>"
+                          (let ((org-commonmark-verse-block-class nil))
+                            (ox-commonmark-tests--render-content "#+begin_verse
+This will not set the
+class on the paragraph tag
+since there is none set.
+#+end_verse")))))
+
 ;;; ox-commonmark-test.el ends here
