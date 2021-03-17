@@ -164,10 +164,9 @@ When the ELEMENT has a CUSTOM_ID property, use that as the anchor name.
 Otherwise, derive the title string from the INFO and slugify it."
   (let ((ret (org-element-property :CUSTOM_ID element)))
     (unless ret
-      (let ((title (org-export-data-with-backend (org-element-property :title element) 'md info)))
+      (let ((title (org-export-data-with-backend (org-export-get-alt-title element info) 'md info)))
         (setq ret (org-commonmark--slug title))))
     ret))
-
 
 (defun org-commonmark--headline-meta (headline info)
   "Extract title and anchor information from a HEADLINE element.
@@ -183,6 +182,22 @@ INFO is a property list used as a communication channel."
 Uses the custom setting `org-commonmark-thematic-break-delimeter' as the
 character for the thematic break."
   (make-string 3 org-commonmark-thematic-break-delimeter))
+
+(defun org-commonmark--inner-template (contents info)
+  "Return the body of document string after CommonMark conversion.
+CONTENTS is the transcoded contents string.  INFO is a property list
+holding export options."
+  (let* ((depth (plist-get info :with-toc))
+         (headlines (and depth (org-export-collect-headlines info depth)))
+         (toc-tail (if headlines "\n\n" ""))
+         (toc-string ""))
+
+    (when headlines
+      (setq toc-string (format "# %s\n" (org-export-translate "Table of Contents" :utf-8 info)))
+      (dolist (headline headlines)
+        (setq toc-string
+              (concat toc-string (org-commonmark--toc-entry headline info) "\n"))))
+    (org-trim (concat toc-string toc-tail contents))))
 
 (defun org-commonmark--italic (_italic contents _info)
   "Transcode ITALIC element into CommonMark emphasis format.
@@ -249,6 +264,18 @@ INFO is a property list holding contextual information."
          (code (org-export-format-code-default src-block info)))
     (org-commonmark--fenced-code-block code lang)))
 
+(defun org-commonmark--toc-entry (headline info)
+  "Format a HEADLINE as an entry in the Table of Contents.
+
+INFO is a property list used as a communication channel."
+  (let* ((meta (org-commonmark--headline-meta headline info))
+         (title (plist-get meta 'title))
+         (anchor (plist-get meta 'anchor))
+         (level (1- (org-element-property :level headline)))
+         (indent (concat (make-string (* level 2) ? )))
+         (bullet (make-string 1 org-commonmark-bullet-list-marker)))
+    (concat indent bullet " [" title "]" "(#" anchor ")")))
+
 (org-export-define-derived-backend 'commonmark 'md
   :filters-alist '((:filter-parse-tree . org-md-separate-elements))
   ;; :menu-entry
@@ -261,6 +288,7 @@ INFO is a property list holding contextual information."
                      (example-block . org-commonmark--example-block)
                      (fixed-width . org-commonmark--fixed-width)
                      (horizontal-rule . org-commonmark--horizontal-rule)
+                     (inner-template . org-commonmark--inner-template)
                      (italic . org-commonmark--italic)
                      (item . org-commonmark--item)
                      (line-break . org-commonmark--line-break)

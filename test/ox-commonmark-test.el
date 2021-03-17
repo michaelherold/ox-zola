@@ -178,4 +178,20 @@ end
 #+end_src
 ")))))
 
+(ert-deftest toc-test ()
+  (should (string-match-p (regexp-quote "# Table of Contents
+- [First](#first)
+- [Second](#alt-second)
+- [Third](#custom-anchor)")
+                          (ox-commonmark-tests--render-content "* First
+* Second
+  :PROPERTIES:
+  :ALT_TITLE: Alt Second
+  :END:
+* Third
+  :PROPERTIES:
+  :CUSTOM_ID: custom-anchor
+  :END:
+"))))
+
 ;;; ox-commonmark-test.el ends here
