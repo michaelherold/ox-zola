@@ -174,7 +174,7 @@ Otherwise, derive the title string from the INFO and slugify it."
 
 INFO is a property list used as a communication channel."
   (let ((title (org-export-data (org-element-property :title headline) info))
-        (anchor (format "{#%s}" (org-commonmark--get-anchor headline info))))
+        (anchor (org-commonmark--get-anchor headline info)))
     (list 'title title 'anchor anchor)))
 
 (defun org-commonmark--horizontal-rule (_horizontal-rule _contents _info)

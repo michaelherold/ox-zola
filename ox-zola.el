@@ -62,7 +62,7 @@ communication channel."
            (meta (org-commonmark--headline-meta headline info))
            (title (plist-get meta 'title))
            (anchor (plist-get meta 'anchor))
-           (headline (concat title " " anchor "\n"))
+           (headline (concat title " " (format "{#%s}" anchor) "\n"))
            (headline-title (concat "\n" (make-string level-effective ?#) " " headline "\n"))
            (content-str (or (org-string-nw-p contents) "")))
       (format "%s%s" headline-title content-str))))
