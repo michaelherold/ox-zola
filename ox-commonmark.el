@@ -3,7 +3,7 @@
 ;; Copyright (C) 2021  Michael Herold
 
 ;; Author: Michael Herold <opensource@michaeljherold.com>
-;; Package-Requires: ((emacs "24.5"))
+;; Package-Requires: ((emacs "24.5") (org "9.1.5"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
