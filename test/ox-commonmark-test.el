@@ -140,6 +140,19 @@ test of a line break")
 This is a \\\\
 test of a line break"))))
 
+(ert-deftest plain-list-test ()
+  (should (string-match-p "-   List 1, Item 1
+-   List 1, Item 2
+
+<!-- -->
+
+-   List 2, Item 1"
+                          (ox-commonmark-tests--render-content "- List 1, Item 1
+- List 1, Item 2
+
+
+- List 2, Item 1"))))
+
 (ert-deftest slug-test ()
   (should (equal "somebody-set-up-us-the-bomb" (org-commonmark--slug "Somebody Set Up Us The Bomb!")))
   (should (equal "turner-and-hooch" (org-commonmark--slug "Turner & Hooch")))

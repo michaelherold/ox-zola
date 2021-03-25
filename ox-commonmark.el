@@ -237,6 +237,21 @@ a communication channel."
 INFO is a property list holding contextual information."
   "\\\n")
 
+(defun org-commonmark--plain-list (plain-list contents info)
+  "Transcode a PLAIN-LIST element into a CommonMark list.
+CONTENTS is the content of the list. INFO is a property list used as a
+communication channel.
+
+When the next element is a separate plain list, insert a blank HTML comment to
+separate them in the CommonMark output.
+
+See <https://spec.commonmark.org/0.29/#example-278> for more information."
+  (let* ((next (org-export-get-next-element plain-list info))
+         (divider (when (and next (eq (org-element-type next) 'plain-list))
+                    "\n<!-- -->\n\n")))
+
+    (concat contents divider)))
+
 (defun org-commonmark--slug (str)
   "Convert string STR to a slug and return it."
 
@@ -327,6 +342,7 @@ Wraps the verse in a paragraph with the CSS class specified in
                      (italic . org-commonmark--italic)
                      (item . org-commonmark--item)
                      (line-break . org-commonmark--line-break)
+                     (plain-list . org-commonmark--plain-list)
                      (src-block . org-commonmark--src-block)
                      (verse-block . org-commonmark--verse-block)))
 
