@@ -45,6 +45,19 @@ This will have a custom div class.
   (should (string-match-p "` `` `" (ox-commonmark-tests--render-content "~``~")))
   (should (string-match-p "`foo\`bar`" (ox-commonmark-tests--render-content "~foo\`bar~"))))
 
+(ert-deftest drawer-test ()
+  (should (string-match-p (regexp-quote "This will be copied as-is.")
+                          (ox-commonmark-tests--render-content "* Headline
+:MYDRAWER:
+This will be copied as-is.
+:END:"))))
+
+(ert-deftest dynamic-block-test ()
+  (should (string-match-p "This will be copied as-is."
+                          (ox-commonmark-tests--render-content "#+begin: example
+This will be copied as-is.
+#+end:"))))
+
 (ert-deftest example-block-test ()
   (should (string-match-p (regexp-quote "```txt
 This is plaintext output.

@@ -154,6 +154,10 @@ CONTENTS is the text within the comment."
                   (t "``%s``"))
             value)))
 
+(defun org-commonmark--copy-contents (_element contents _info)
+  "Return the CONTENTS of an ELEMENT without any analysis."
+  contents)
+
 (defun org-commonmark--fenced-code-block (content language)
   "Wrap CONTENT in a fenced code block in a given LANGUAGE.
 
@@ -348,6 +352,8 @@ Wraps the verse in a paragraph with the CSS class specified in
   :translate-alist '((bold . org-commonmark--bold)
                      (center-block . org-commonmark--center-block)
                      (code . org-commonmark--code-span)
+                     (drawer . org-commonmark--copy-contents)
+                     (dynamic-block . org-commonmark--copy-contents)
                      (example-block . org-commonmark--example-block)
                      (fixed-width . org-commonmark--fixed-width)
                      (horizontal-rule . org-commonmark--horizontal-rule)
