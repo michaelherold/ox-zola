@@ -142,6 +142,18 @@ CONTENTS is the text within the comment."
               (format "<style>.%s { margin-left: auto; margin-right: auto; text-align: center; }</style>\n" class))
             (format "<div class=\"%s\">\n%s</div>\n" class contents))))
 
+(defun org-commonmark--code-span (code-span _contents _info)
+  "Transcode CODE-SPAN element into a CommonMark code span."
+
+  (let ((tick "`")
+        (value (org-element-property :value code-span)))
+    (format (cond ((not (string-match tick value)) "`%s`")
+                  ((or (string-prefix-p tick value)
+                       (string-suffix-p tick value))
+                   "`` %s ``")
+                  (t "``%s``"))
+            value)))
+
 (defun org-commonmark--fenced-code-block (content language)
   "Wrap CONTENT in a fenced code block in a given LANGUAGE.
 
@@ -335,15 +347,18 @@ Wraps the verse in a paragraph with the CSS class specified in
   ;;             (org-commonmark-export-as-commonmark async subtree visible-only)))))
   :translate-alist '((bold . org-commonmark--bold)
                      (center-block . org-commonmark--center-block)
+                     (code . org-commonmark--code-span)
                      (example-block . org-commonmark--example-block)
                      (fixed-width . org-commonmark--fixed-width)
                      (horizontal-rule . org-commonmark--horizontal-rule)
+                     (inline-src-block . org-commonmark--code-span)
                      (inner-template . org-commonmark--inner-template)
                      (italic . org-commonmark--italic)
                      (item . org-commonmark--item)
                      (line-break . org-commonmark--line-break)
                      (plain-list . org-commonmark--plain-list)
                      (src-block . org-commonmark--src-block)
+                     (verbatim . org-commonmark--code-span)
                      (verse-block . org-commonmark--verse-block)))
 
 (provide 'ox-commonmark)

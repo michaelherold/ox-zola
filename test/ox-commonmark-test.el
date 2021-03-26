@@ -39,6 +39,12 @@ This will not have a style tag.
 This will have a custom div class.
 #+end_center")))))
 
+(ert-deftest code-test ()
+  (should (string-match-p "`foo`" (ox-commonmark-tests--render-content "~foo~")))
+  (should (string-match-p "``foo ` bar``" (ox-commonmark-tests--render-content "~foo ` bar~")))
+  (should (string-match-p "` `` `" (ox-commonmark-tests--render-content "~``~")))
+  (should (string-match-p "`foo\`bar`" (ox-commonmark-tests--render-content "~foo\`bar~"))))
+
 (ert-deftest example-block-test ()
   (should (string-match-p (regexp-quote "```txt
 This is plaintext output.
@@ -73,6 +79,13 @@ across multiple lines.
                           (let ((org-commonmark-thematic-break-delimeter ?_))
                             (ox-commonmark-tests--render-content
                              "-----")))))
+
+(ert-deftest inline-src-block-test ()
+  (ert-skip "Skipping inline source blocks because they aren't evaluating properly in ERT. Help wanted!")
+  (should (string-match-p "`foo`" (ox-commonmark-tests--render-content "src_elisp{(message \"foo\")}")))
+  (should (string-match-p "``foo ` bar``" (ox-commonmark-tests--render-content "src_elisp{(message \"foo ` bar\")}")))
+  (should (string-match-p "` `` `" (ox-commonmark-tests--render-content "src_ruby{(message \"``\")}")))
+  (should (string-match-p "`foo\`bar`" (ox-commonmark-tests--render-content "src_ruby{(message \"foo\`bar\")}"))))
 
 (ert-deftest italic-test ()
   (should (string-match-p (regexp-quote "_emphasis_")
@@ -206,6 +219,12 @@ end
   :CUSTOM_ID: custom-anchor
   :END:
 "))))
+
+(ert-deftest verbatim-test ()
+  (should (string-match-p "`foo`" (ox-commonmark-tests--render-content "=foo=")))
+  (should (string-match-p "``foo ` bar``" (ox-commonmark-tests--render-content "=foo ` bar=")))
+  (should (string-match-p "` `` `" (ox-commonmark-tests--render-content "=``=")))
+  (should (string-match-p "`foo\`bar`" (ox-commonmark-tests--render-content "=foo\`bar="))))
 
 (ert-deftest verse-block-test ()
   (should (string-match-p "<p class=\"org-verse\">
